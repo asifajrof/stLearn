@@ -737,15 +737,15 @@ class ClusterPlot(SpatialBasePlot):
                 check_sublist(list(self.query_adata.obs.index), list(cluster[1].index))
             ]
 
-            if self.use_label + "_colors" in self.adata[0].uns:
-                # label_set = self.adata[0].uns[self.use_label+'_set']
-                label_set = (
-                    self.adata[0].obs[self.use_label].cat.categories.values.astype(str)
-                )
-                col_index = np.where(label_set == cluster[0])[0][0]
-                color = self.adata[0].uns[self.use_label + "_colors"][col_index]
-            else:
-                color = self.cmap_(self.query_indexes[i] / (self.cmap_n - 1))
+#             if self.use_label + "_colors" in self.adata[0].uns:
+#                 # label_set = self.adata[0].uns[self.use_label+'_set']
+#                 label_set = (
+#                     self.adata[0].obs[self.use_label].cat.categories.values.astype(str)
+#                 )
+#                 col_index = np.where(label_set == cluster[0])[0][0]
+#                 color = self.adata[0].uns[self.use_label + "_colors"][col_index]
+#             else:
+            color = self.cmap_(self.query_indexes[i] / (self.cmap_n - 1))
 
             imgcol_new = subset_spatial[:, 0] * self.scale_factor
             imgrow_new = subset_spatial[:, 1] * self.scale_factor
