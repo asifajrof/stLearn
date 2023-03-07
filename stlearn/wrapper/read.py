@@ -26,8 +26,8 @@ def Read10X(
     load_images: Optional[bool] = True,
     quality: _QUALITY = "hires",
     image_path: Union[str, Path] = None,
+    simulated: bool = False,
 ) -> AnnData:
-
     """\
     Read Visium data from 10X (wrap read_visium from scanpy)
 
@@ -84,7 +84,10 @@ def Read10X(
     """
 
     path = Path(path)
-    adata = scanpy.read_10x_h5(path / count_file, genome=genome)
+    if not simulated:
+        adata = scanpy.read_10x_h5(path / count_file, genome=genome)
+    else:
+        adata = scanpy.read(path / count_file)
 
     adata.uns["spatial"] = dict()
 
@@ -137,7 +140,8 @@ def Read10X(
         )
 
         adata.uns["spatial"][library_id]["metadata"] = {
-            k: (str(attrs[k], "utf-8") if isinstance(attrs[k], bytes) else attrs[k])
+            k: (str(attrs[k], "utf-8")
+                if isinstance(attrs[k], bytes) else attrs[k])
             for k in ("chemistry_description", "software_version")
             if k in attrs
         }
@@ -205,7 +209,6 @@ def ReadOldST(
     quality: str = "hires",
     spot_diameter_fullres: float = 50,
 ) -> AnnData:
-
     """\
     Read Old Spatial Transcriptomics data
 
@@ -254,7 +257,6 @@ def ReadSlideSeq(
     spot_diameter_fullres: float = 50,
     background_color: _background = "white",
 ) -> AnnData:
-
     """\
     Read Slide-seq data
 
@@ -297,7 +299,8 @@ def ReadSlideSeq(
     adata.obs["imagerow"] = meta["y"].values * scale
 
     # Create image
-    max_size = np.max([adata.obs["imagecol"].max(), adata.obs["imagerow"].max()])
+    max_size = np.max([adata.obs["imagecol"].max(),
+                      adata.obs["imagerow"].max()])
     max_size = int(max_size + 0.1 * max_size)
 
     if background_color == "black":
@@ -336,7 +339,6 @@ def ReadMERFISH(
     spot_diameter_fullres: float = 50,
     background_color: _background = "white",
 ) -> AnnData:
-
     """\
     Read MERFISH data
 
@@ -419,7 +421,6 @@ def ReadSeqFish(
     spot_diameter_fullres: float = 50,
     background_color: _background = "white",
 ) -> AnnData:
-
     """\
     Read SeqFish data
 
@@ -452,7 +453,8 @@ def ReadSeqFish(
     count = count.T
     count.columns = count.iloc[0]
     count = count.drop(count.index[0]).reset_index(drop=True)
-    count = count[count["Field_of_View"] == field].drop(count.columns[[0, 1]], axis=1)
+    count = count[count["Field_of_View"] == field].drop(
+        count.columns[[0, 1]], axis=1)
 
     spatial = spatial[spatial["Field_of_View"] == field]
 
@@ -468,7 +470,8 @@ def ReadSeqFish(
     adata.obsm["spatial"] = spatial[["X", "Y"]].values
 
     # Create image
-    max_size = np.max([adata.obs["imagecol"].max(), adata.obs["imagerow"].max()])
+    max_size = np.max([adata.obs["imagecol"].max(),
+                      adata.obs["imagerow"].max()])
     max_size = int(max_size + 0.1 * max_size)
 
     if background_color == "black":
@@ -506,7 +509,6 @@ def ReadXenium(
     spot_diameter_fullres: float = 15,
     background_color: _background = "white",
 ) -> AnnData:
-
     """\
     Read Xenium data
 
@@ -562,13 +564,15 @@ def ReadXenium(
         )
     else:
         # Create image
-        max_size = np.max([adata.obs["imagecol"].max(), adata.obs["imagerow"].max()])
+        max_size = np.max([adata.obs["imagecol"].max(),
+                          adata.obs["imagerow"].max()])
         max_size = int(max_size + 0.1 * max_size)
 
         if background_color == "black":
             image = Image.new("RGBA", (max_size, max_size), (0, 0, 0, 0))
         else:
-            image = Image.new("RGBA", (max_size, max_size), (255, 255, 255, 255))
+            image = Image.new("RGBA", (max_size, max_size),
+                              (255, 255, 255, 255))
         imgarr = np.array(image)
 
         # Create spatial dictionary
@@ -642,13 +646,15 @@ def create_stlearn(
         )
     else:
         # Create image
-        max_size = np.max([adata.obs["imagecol"].max(), adata.obs["imagerow"].max()])
+        max_size = np.max([adata.obs["imagecol"].max(),
+                          adata.obs["imagerow"].max()])
         max_size = int(max_size + 0.1 * max_size)
 
         if background_color == "black":
             image = Image.new("RGBA", (max_size, max_size), (0, 0, 0, 0))
         else:
-            image = Image.new("RGBA", (max_size, max_size), (255, 255, 255, 255))
+            image = Image.new("RGBA", (max_size, max_size),
+                              (255, 255, 255, 255))
         imgarr = np.array(image)
 
         # Create spatial dictionary
